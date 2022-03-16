@@ -29,8 +29,8 @@ fi
 #    exit 1
 #fi
 
-if [[ $CURRENT_BRANCH != "master" ]]; then
-    echo "you are not in master branch"
+if [[ $CURRENT_BRANCH != "main" ]]; then
+    echo "you are not in main branch"
     exit 1
 fi
 
@@ -62,8 +62,9 @@ https://api.github.com/repos/tsotosa/atmm/releases \
     "tag_name":"'"$TAG_TITLE"'",
     "name":"'"$TAG_TITLE"'",
     "draft":true,
-    "target_commitish": "master",
-    "body":"describe the release"
+    "target_commitish": "main",
+    "body":"describe the release",
+    "generate_release_notes": true
     }'
   )
 
@@ -95,3 +96,7 @@ do
 
   echo "finished uploading $f file..."
 done
+
+echo "cleanup..deleting bin/*"
+rm -r ./bin/*
+
