@@ -1,0 +1,94 @@
+package main
+
+import (
+	"fmt"
+	"go.uber.org/zap"
+	"path/filepath"
+	"regexp"
+)
+
+func ParseMovieFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
+	openingCurly := 0
+	closingCurly := 0
+	currentFind := ""
+	pairs := make([]FilenameFormatPair, 0)
+
+	for i, v := range f {
+		if string(v) == "{" {
+			openingCurly = i
+			currentFind = "openingCurly"
+		}
+
+		if string(v) == "}" {
+			closingCurly = i
+			currentFind = "closingCurly"
+		}
+
+		addPair := closingCurly != 0 && currentFind == "closingCurly"
+
+		if addPair {
+			pairs = append(pairs, FilenameFormatPair{
+				StartIndex:   openingCurly,
+				EndIndex:     closingCurly,
+				PropertyName: f[openingCurly+1 : closingCurly],
+			})
+			closingCurly = 0
+			openingCurly = 0
+			zap.S().Debugf("pairs %#v", pairs)
+		}
+	}
+	return pairs, nil
+}
+
+func MapMovieFilenameProperties(o MovieFile, ffp []FilenameFormatPair) error {
+	for i, pair := range ffp {
+		switch pair.PropertyName {
+		case "MovieTitle":
+			ffp[i].PropertyValue = o.Movie.Title
+			break
+		case "MovieReleaseYear:0000":
+			ffp[i].PropertyValue = GetMovieYearFromReleaseDate(o.Movie.ReleaseDate)
+			break
+		}
+	}
+	return nil
+}
+
+func ReplaceCustomMovieFormatStringToTitle(s string, p []FilenameFormatPair) (string, error) {
+	t := s
+	for _, pair := range p {
+		reg, err := regexp.Compile(fmt.Sprintf("{%s}", pair.PropertyName))
+		if err != nil {
+			return "", err
+		}
+		t = reg.ReplaceAllString(t, pair.PropertyValue)
+	}
+	return t, nil
+}
+
+func MakeMovieFilename(o MovieFile) (string, error) {
+	customFormat := Conf.MovieCustomFormat
+	formatPairs, err := ParseMovieFilenameCustomFormat(customFormat)
+	if err != nil {
+		return "", err
+	}
+	err = MapMovieFilenameProperties(o, formatPairs)
+	if err != nil {
+		return "", err
+	}
+	title, err := ReplaceCustomMovieFormatStringToTitle(customFormat, formatPairs)
+	title = title + filepath.Ext(o.FilenameOriginal)
+	if err != nil {
+		return "", err
+	}
+	return title, nil
+}
+
+func GetMovieYearFromReleaseDate(s string) string {
+	r := `\d{4}`
+	reg, err := regexp.Compile(r)
+	if err != nil {
+		return ""
+	}
+	return reg.FindString(s)
+}

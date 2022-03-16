@@ -1,0 +1,12 @@
+.idea
+.git
+testMediaDir
+testMovieMediaDir
+testScanDir
+testMovieScanDir
+config.yaml
+*.log
+bin
+*.db
+coverage.out
+tmp
