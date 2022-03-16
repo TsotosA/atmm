@@ -32,38 +32,72 @@ rootMediaDir: "./testMediaDir"
 ### the root directory where the app will look for media files to process
 rootScanDir: "./testScanDir"
 
-dryRun: false #do everything except creating dirs and moving the files
+### ignore for now, eventually it will enable the app to run and log as normally but without creating dirs and moving the files
+dryRun: false 
 
-### as defined in the library's readme (https://pkg.go.dev/go.uber.org/zap#Config.OutputPaths) 
-# "a list of URLs or file paths to write logging output to.". not empty means logging is enabled
-# "stdout" - console
+### the log file location and name
 # "./atmm.log" - logs to a file named atmm.log located next to the binary
 logOutputPath: "./atmm.log" 
 
 ### the log level to use. available values are [debug | info | warn | error].
 # info should be used as a default in order to avoid spamming the logs
-logLevel: debug
+logLevel: info
 
-### 
-# prod sets the logging output to json (usefull for piping the logs to prometheus/grafana etc..) 
-# dev sets the logging output to a more human friendly format
+###  [prod] sets the logging output to json (useful for piping the logs to prometheus/grafana etc..) 
+# [dev] sets the logging output to a more human friendly format
 environment: prod 
-cron: "" #"@every 10s"
+
+### controls the scan for tv series
+# empty string [""] will disable scan completely
+# valid examples can be found at the package godoc https://pkg.go.dev/github.com/robfig/cron?utm_source=godoc
+cron: ""
+
+###
 tvShowEpisodeFormat: "{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}"
+
+###
 tvShowEpisodeFileRetryFailed: false
+
+###
 checkForUpdatesInterval: "@every 60s"
+
+###
 githubPersonalToken:
+
+###
 githubUsername:
+
+###
 isAutoRestartManaged: false
+
+###
 scanForMovieInterval: "@every 15s" #"@every 10s"
+
+###
 rootMovieScanDir: "./testMovieMediaDir"
+
+###
 rootMovieMediaDir: "./testMovieScanDir"
+
+###
 movieFileRetryFailed: false
+
+###
 movieCustomFormat: "{MovieTitle} ({MovieReleaseYear:0000})"
+
+###
 dbBucketsCleanupInterval:"@weekly"
+
+###
 logRotateMaxNumOfBackups: 1
+
+###
 logRotateMaxAgeOfBackups: 1
+
+###
 logRotateMaxLogFileSize: 1
+
+###
 logRotateCompressBackups: true
 `
 )
