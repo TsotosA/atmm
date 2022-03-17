@@ -6,14 +6,18 @@
 ![GitHub go.mod Go version (branch)](https://img.shields.io/github/go-mod/go-version/TsotosA/atmm/main)
 
 A `golang` based application for `managing tv-shows & movies` (only renaming and copying for now).  
-It is developed as a part of my home server infrastructure since existing solutions were too overpowered and heavy for the use case.   
-Also, it serves as an excuse to learn [![Go](https://img.shields.io/badge/--00ADD8?logo=go&logoColor=ffffff)](https://golang.org/)
+It is developed as a part of my home server infrastructure since existing solutions were too overpowered and heavy for
+the use case.   
+Also, it serves as an excuse to
+learn [![Go](https://img.shields.io/badge/--00ADD8?logo=go&logoColor=ffffff)](https://golang.org/)
 
 ## 🚧 disclaimer 🚧
+
 > **this software is in a very early stage of development**  
 > i.e. everything is prone to change (functionality, api, configurations, stability etc..)
 
 ## features
+
 - `windows` & `linux` binaries available
 - supports `tv series` & `movies`
 - `auto-update` to latest release
@@ -22,13 +26,16 @@ Also, it serves as an excuse to learn [![Go](https://img.shields.io/badge/--00AD
 - config.yaml file `hot reload`
 
 ## configuration
-The app will look for a `config.yaml` file next to the app binary.
-All configuration/settings are controlled from this file.  
-In case no such file exists it will create one (`example.config.yaml`) with some placeholder values and explanations (this file needs to be renamed after setup !).   
-Also, at every update it will check that all the configuration keys are available at config.yaml. 
-In case some of them are missing it will print them out at the logs before exiting.
 
-#### *config*
+The app will look for a `config.yaml` file next to the app binary. All configuration/settings are controlled from this
+file.  
+In case no such file exists it will create one (`example.config.yaml`) with some placeholder values and explanations (
+this file needs to be renamed after setup !).   
+Also, at every update it will check that all the configuration keys are available at config.yaml. In case some of them
+are missing it will print them out at the logs before exiting.
+
+#### *config.yaml*
+
 ```yaml
 ### https://www.themoviedb.org/
 theMovieDbBaseApiUrlV3: https://api.themoviedb.org/3/
@@ -45,11 +52,11 @@ rootMediaDir: "./testMediaDir"
 rootScanDir: "./testScanDir"
 
 ### ignore for now, eventually it will enable the app to run and log as normally but without creating dirs and moving the files
-dryRun: false 
+dryRun: false
 
 ### the file to write logs to
 # "./atmm.log" - logs to a file named atmm.log located next to the binary.
-logOutputPath: "./atmm.log" 
+logOutputPath: "./atmm.log"
 
 ### the log level to use. available values are [debug | info | warn | error].
 # [info] should be used as a default in order to avoid spamming the logs.
@@ -57,7 +64,7 @@ logLevel: info
 
 ###  [prod] sets the logging output to json (useful for piping the logs to prometheus/grafana etc..) .
 # [dev] sets the logging output to a more human friendly format
-environment: prod 
+environment: prod
 
 ### controls the scan for tv series.
 # empty string [""] will disable scan completely.
@@ -118,30 +125,20 @@ logRotateMaxLogFileSize: 1
 logRotateCompressBackups: true
 ```
 
-[//]: # (#### *custom-movie-formats*)
+## custom filenames
 
-[//]: # ()
-[//]: # (| **Variable**              | **Explanation** |)
+the filename format to be used is controlled by the `movieCustomFormat` and `tvShowEpisodeFormat` configurations.  
+the available variables for `movies` and `tv shows` are respectively:
 
-[//]: # (|---------------------------|-----------------|)
+| **Variable**              | **Explanation** |
+|---------------------------|-----------------|
+| `{MovieTitle}`            |                 |
+| `{MovieReleaseYear:0000}` |                 |
 
-[//]: # (| `{MovieTitle}`            |                 |)
-
-[//]: # (| `{MovieReleaseYear:0000}` |                 |)
-
-[//]: # ()
-[//]: # (#### *custom-tv-shows-formats*)
-
-[//]: # ()
-[//]: # (| **Variable**     | **Explanation** |)
-
-[//]: # (|------------------|-----------------|)
-
-[//]: # (| `{SeriesTitle}`  |                 |)
-
-[//]: # (| `{Episode:00}`   |                 |)
-
-[//]: # (| `{Season:00}`    |                 |)
-
-[//]: # (| `{EpisodeTitle}` |                 |)
+| **Variable**     | **Explanation** |
+|------------------|-----------------|
+| `{SeriesTitle}`  |                 |
+| `{Episode:00}`   |                 |
+| `{Season:00}`    |                 |
+| `{EpisodeTitle}` |                 |
 
