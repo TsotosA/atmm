@@ -1,24 +1,22 @@
 #!/bin/bash
-#-v version
-#-t github personal access token
 
-VERSION=''
 GITHUB_PERSONAL_ACCESS_TOKEN=''
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 TAG_TITLE=''
 HAS_CHANGES="false"
+VERSION_BUMP=
 
-while getopts 't:v:' flag; do
+while getopts 't:b:' flag; do
   case "${flag}" in
-    v) VERSION="${OPTARG}" ;;
     t) GITHUB_PERSONAL_ACCESS_TOKEN="${OPTARG}" ;;
+    b) VERSION_BUMP="${OPTARG}" ;;
     *) echo test
        exit 1 ;;
   esac
 done
 
-if [[ -z $VERSION || -z $GITHUB_PERSONAL_ACCESS_TOKEN ]]; then
-    echo "please provide both version [-v] and github personal access token [-t] flags"
+if [[ -z $VERSION_BUMP || -z $GITHUB_PERSONAL_ACCESS_TOKEN ]]; then
+    echo "please provide both version bump [-b] [major | minor | patch] and github personal access token [-t] flags"
     exit 1
 fi
 
@@ -34,7 +32,40 @@ if [[ $CURRENT_BRANCH != "main" ]]; then
     exit 1
 fi
 
-TAG_TITLE="v${VERSION}"
+
+RELEASES=$(curl --silent \
+  -u tsotosa:"${GITHUB_PERSONAL_ACCESS_TOKEN}" \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/tsotosa/atmm/releases \
+
+  )
+LATEST_TAG_VERSION="$(echo "$RELEASES" | grep -P -o -e '[\d]{0,3}\.[\d]{0,3}\.[\d]{0,3}' | head -1)"
+OVERRIDE_VERSION_BUMP=
+if [[ -z $LATEST_TAG_VERSION ]]; then
+    while true; do
+        read -p "latest tag version is: [$LATEST_TAG_VERSION] which will produce unexpected version bump. proceed? [y,n,o] " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) exit;;
+            [Oo]* ) OVERRIDE_VERSION_BUMP="y"; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+fi
+
+NEW_VERSION=$( ./versionBump.sh $VERSION_BUMP $LATEST_TAG_VERSION )
+
+if [[ $OVERRIDE_VERSION_BUMP == "y" ]]; then
+    while true; do
+        read -p "what is the new version? " yn
+        case $yn in
+            [Nn]* ) exit;;
+            * ) NEW_VERSION="$yn"; break;;
+        esac
+    done
+fi
+
+TAG_TITLE="v${NEW_VERSION}"
 
 ./test.sh
 if [ $? -eq 0 ]; then
@@ -63,7 +94,7 @@ https://api.github.com/repos/tsotosa/atmm/releases \
     "name":"'"$TAG_TITLE"'",
     "draft":true,
     "target_commitish": "main",
-    "body":"describe the release",
+    "body":"",
     "generate_release_notes": true
     }'
   )
