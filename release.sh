@@ -103,8 +103,8 @@ ASSETS="$(echo "$R" | grep -P -o -e 'https:\/\/uploads\.github\.com\/.*assets' )
 #echo $ASSETS
 
 rm ./bin/* 2> /dev/null
-env GOOS=windows go build -ldflags="-X 'main.Version=${TAG_TITLE}'" -race -o  ./bin/atmm-windows-x64-${TAG_TITLE}.exe
-env GOOS=linux go build -ldflags="-X 'main.Version=${TAG_TITLE}'" -o  ./bin/atmm-linux-x64-${TAG_TITLE}
+env GOOS=windows go build -ldflags="-s -w -X 'main.Version=${TAG_TITLE}'" -race -o  ./bin/atmm-windows-x64-${TAG_TITLE}.exe
+env GOOS=linux go build -ldflags="-s -w -X 'main.Version=${TAG_TITLE}'" -o  ./bin/atmm-linux-x64-${TAG_TITLE}
 
 FILES="bin/*"
 ## NOTE : Quote it else use array to avoid problems #
