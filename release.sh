@@ -53,7 +53,7 @@ if [[ -z $LATEST_TAG_VERSION ]]; then
     done
 fi
 
-NEW_VERSION=$( ./versionBump.sh $VERSION_BUMP $LATEST_TAG_VERSION )
+NEW_VERSION=$( ./scripts/versionBump.sh $VERSION_BUMP $LATEST_TAG_VERSION )
 
 if [[ $OVERRIDE_VERSION_BUMP == "y" ]]; then
     while true; do
@@ -67,7 +67,7 @@ fi
 
 TAG_TITLE="v${NEW_VERSION}"
 
-./test.sh
+./scripts/test.sh
 if [ $? -eq 0 ]; then
     echo "tests ok"
 else
