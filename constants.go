@@ -12,6 +12,7 @@ const (
 	TvShowEpisodeSingleRegexp  = `([Ee]|(Episode|EPISODE|Ep|EP))([\d]{1,4})\D`
 	TvShowEpisodeIsMultiRegexp = `(([Ee]|(Episode|EPISODE|Ep|EP))([\d]{1,2})){2,}\D`
 	TvShowEpisodeTitleRegexp   = `(.*)+(([Ss]|(Season|SEASON))([\d]{1,4})\D)`
+	TvShowResolutionRegexp     = `\W(\d+p)\W`
 	MovieTitleRegexp           = `(.*)(\d{4})\W`
 	MovieYearRegexp            = `(.*)(\d{4})\W`
 	MovieResolutionRegexp      = `\W(\d+p)\W`
