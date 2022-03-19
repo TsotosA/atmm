@@ -12,7 +12,7 @@ func TestParseTvShowFilename(t *testing.T) {
 		expected ParsedFilename
 		error    error
 	}{
-		{"The.Book.of.Boba.Fett.S01E07.Chapter.7.720p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-NOSiViD.mkv", ParsedFilename{Name: "The Book of Boba Fett", SeasonNumber: "01", EpisodeNumber: "07"}, nil},
+		{"The.Book.of.Boba.Fett.S01E07.Chapter.7.720p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-NOSiViD.mkv", ParsedFilename{Name: "The Book of Boba Fett", SeasonNumber: "01", EpisodeNumber: "07", Resolution: "720p"}, nil},
 	}
 
 	for _, tt := range tests {
