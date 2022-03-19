@@ -12,6 +12,7 @@ func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err er
 	s, err := getSeason(filename)
 	e, err := getEpisode(filename)
 	t, err := getTitle(filename)
+	r, _ := getResolution(filename)
 
 	if err != nil {
 		fmt.Printf("skipping %v. could not match title to search for.\n", filename)
@@ -43,6 +44,7 @@ func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err er
 		Name:          t,
 		SeasonNumber:  s,
 		EpisodeNumber: e,
+		Resolution:    r,
 	}, nil
 }
 
@@ -86,4 +88,18 @@ func getTitle(s string) (string, error) {
 	}
 	zap.S().Debugf("getTitle() title:%s", title[1])
 	return title[1], nil
+}
+
+func getResolution(s string) (string, error) {
+	rxp, err := regexp.Compile(TvShowResolutionRegexp)
+	if err != nil {
+		return "", err
+	}
+	res := rxp.FindStringSubmatch(s)
+	if len(res) < 1 {
+		zap.S().Warnf("failed to parse resolution from filename: %s", s)
+		return "", errors.New("failed to parse resolution from filename")
+	}
+	zap.S().Debugf("getResolution() res:%s", res[0])
+	return res[1], nil
 }

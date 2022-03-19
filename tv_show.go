@@ -30,6 +30,8 @@ func HandleTvShows() error {
 			continue
 		}
 
+		filesFoundInScan[i].ParsedFilename = parsedFilename
+
 		show, err := searchTvShow(parsedFilename.Name)
 		if err != nil {
 			zap.S().Warnf("failed to fetch data for index:[%#v] object:[%#v] with error:[%#v]\n", i, v, err)

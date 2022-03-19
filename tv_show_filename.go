@@ -61,6 +61,9 @@ func MapProperties(o TvShowEpisodeFile, ffp []FilenameFormatPair) error {
 		case "Episode:00":
 			ffp[i].PropertyValue = fmt.Sprintf("%02d", o.TvShowEpisode.EpisodeNumber)
 			break
+		case "Resolution":
+			ffp[i].PropertyValue = o.ParsedFilename.Resolution
+			break
 		}
 	}
 	return nil

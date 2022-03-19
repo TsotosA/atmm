@@ -8,6 +8,7 @@ type TvShowEpisodeFile struct {
 	TvShowEpisode           TheMovieDbTvShowEpisodeDetails `json:"tvShowEpisode"`
 	SuccessfulParseOriginal bool                           `json:"successfulParseOriginal"`
 	SuccessfulCopyFile      bool                           `json:"successfulCopyFile"`
+	ParsedFilename          ParsedFilename                 `json:"parsedFilename"`
 }
 
 type ParsedFilename struct {
