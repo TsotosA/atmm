@@ -14,6 +14,7 @@ const (
 	TvShowEpisodeTitleRegexp   = `(.*)+(([Ss]|(Season|SEASON))([\d]{1,4})\D)`
 	MovieTitleRegexp           = `(.*)(\d{4})\W`
 	MovieYearRegexp            = `(.*)(\d{4})\W`
+	MovieResolutionRegexp      = `\W(\d+p)\W`
 
 	WindowsGeneratedFileThumbsDb = "Thumbs.db"
 

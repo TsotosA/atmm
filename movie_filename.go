@@ -49,6 +49,9 @@ func MapMovieFilenameProperties(o MovieFile, ffp []FilenameFormatPair) error {
 		case "MovieReleaseYear:0000":
 			ffp[i].PropertyValue = GetMovieYearFromReleaseDate(o.Movie.ReleaseDate)
 			break
+		case "Resolution":
+			ffp[i].PropertyValue = o.ParsedFilename.Resolution
+			break
 		}
 	}
 	return nil

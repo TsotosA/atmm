@@ -16,6 +16,7 @@ type ParsedFilename struct {
 	SeasonNumber  string `json:"seasonNumber,omitempty"`
 	EpisodeNumber string `json:"episodeNumber,omitempty"`
 	Year          string `json:"year,omitempty"`
+	Resolution    string `json:"resolution,omitempty"`
 }
 
 type AppConf struct {
@@ -63,6 +64,7 @@ type MovieFile struct {
 	FilenameNew             string          `json:"filenameNew,omitempty"`
 	AbsolutePath            string          `json:"absolutePath,omitempty"`
 	Movie                   TheMovieDbMovie `json:"movie,omitempty"`
-	SuccessfulParseOriginal bool            `json:"successfulParseOriginal"`
-	SuccessfulCopyFile      bool            `json:"successfulCopyFile"`
+	SuccessfulParseOriginal bool            `json:"successfulParseOriginal,omitempty"`
+	SuccessfulCopyFile      bool            `json:"successfulCopyFile,omitempty"`
+	ParsedFilename          ParsedFilename  `json:"parsedFilename,omitempty"`
 }

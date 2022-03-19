@@ -28,6 +28,8 @@ func HandleMovies() error {
 		}
 		zap.S().Debugf("%#v", parsedFilename)
 
+		filesFoundInScan[i].ParsedFilename = parsedFilename
+
 		movie, err := searchMovie(parsedFilename.Title)
 		if err != nil {
 			zap.S().Warnf("failed to fetch data for index:[%#v] object:[%#v] with error:[%#v]\n", i, v, err)
