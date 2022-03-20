@@ -134,6 +134,7 @@ the available variables for `movies` and `tv shows` are respectively:
 |---------------------------|-----------------|
 | `{MovieTitle}`            |                 |
 | `{MovieReleaseYear:0000}` |                 |
+| `{Resolution}`            |                 |
 
 | **Variable**     | **Explanation** |
 |------------------|-----------------|
