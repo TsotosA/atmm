@@ -1,10 +1,10 @@
 package main
 
 import (
-	"atmm/debounce"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/tsotosa/atmm/debounce"
 	"log"
 	"os"
 	"strings"

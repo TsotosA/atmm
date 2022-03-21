@@ -1,4 +1,4 @@
-module atmm
+module github.com/tsotosa/atmm
 
 go 1.18
 
