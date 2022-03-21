@@ -143,3 +143,6 @@ the available variables for `movies` and `tv shows` are respectively:
 | `{Season:00}`    |                 |
 | `{EpisodeTitle}` |                 |
 
+## database
+atmm uses [bbolt](https://github.com/etcd-io/bbolt) DB for local persistent storage.  
+[Boltbrowser](https://github.com/br0xen/boltbrowser/issues) may be used to interact with the db. Use with caution and read the help file `?` after startup !
