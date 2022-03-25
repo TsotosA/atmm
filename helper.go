@@ -70,6 +70,7 @@ func PrettyPrint(x interface{}) []byte {
 	}
 	return y
 }
+
 func VerifyFilesizeOfPaths(from, to string) (bool, error) {
 	fromStat, err := os.Stat(from)
 	if err != nil {
@@ -83,15 +84,6 @@ func VerifyFilesizeOfPaths(from, to string) (bool, error) {
 	zap.S().Infof("filepaths are the same size: %t\n", result)
 	return result, nil
 }
-
-//todo: use this to get the caller function name. need to mod it a little
-//func Trace() {
-//	pc := make([]uintptr, 15)
-//	n := runtime.Callers(2, pc)
-//	frames := runtime.CallersFrames(pc[:n])
-//	frame, _ := frames.Next()
-//	fmt.Printf("%s:%d %s\n", frame.File, frame.Line, frame.Function)
-//}
 
 func CurrrentBinaryAbsolutePath() (string, error) {
 	ex, err := os.Executable()

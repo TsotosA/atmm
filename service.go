@@ -133,7 +133,7 @@ func GetGithubReleases(page int) ([]GithubRelease, error) {
 }
 
 func DownloadUrlToLocation(filename, url, location string) error {
-	//todo error handling, logging, checks for filepath tmp
+
 	zap.S().Debugf("downloading update binary from url:%s", url)
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
