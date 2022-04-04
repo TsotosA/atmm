@@ -19,6 +19,8 @@ const (
 
 	WindowsGeneratedFileThumbsDb = "Thumbs.db"
 
+	PartialFileExtension = ".part"
+
 	ExampleConfigYaml = `
 ### https://www.themoviedb.org/
 theMovieDbBaseApiUrlV3: https://api.themoviedb.org/3/

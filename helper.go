@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -15,11 +16,11 @@ func CopyFileToLocation(srcFilePath, destFilePath string) error {
 	zap.S().Infof("copying filepath [%v] to [%v]", srcFilePath, destFilePath)
 	//check if dir exists and create it if it doesn't
 
-	destFile, err := os.Create(destFilePath) // creates if file doesn't exist
+	tmpFile, err := os.Create(fmt.Sprintf("%s.part", destFilePath)) // creates if file doesn't exist
 	if err != nil {
 		return err
 	}
-	defer destFile.Close()
+	defer tmpFile.Close()
 
 	srcFile, err := os.Open(srcFilePath)
 	if err != nil {
@@ -27,16 +28,20 @@ func CopyFileToLocation(srcFilePath, destFilePath string) error {
 	}
 	defer srcFile.Close()
 
-	bytesCopied, err := io.Copy(destFile, srcFile) // check first var for number of bytes copied
+	bytesCopied, err := io.Copy(tmpFile, srcFile) // check first var for number of bytes copied
 	if err != nil {
 		return err
 	}
 	zap.S().Infof("copied bytes: [%v]", bytesCopied)
-	err = destFile.Sync()
+	err = tmpFile.Sync()
 	if err != nil {
 		return err
 	}
-	err = destFile.Close()
+	err = tmpFile.Close()
+	if err != nil {
+		return err
+	}
+	err = os.Rename(fmt.Sprintf("%s.part", destFilePath), destFilePath)
 	if err != nil {
 		return err
 	}
@@ -91,4 +96,8 @@ func CurrrentBinaryAbsolutePath() (string, error) {
 		return "", err
 	}
 	return ex, nil
+}
+
+func IsPartialFile(p string) bool {
+	return filepath.Ext(p) == PartialFileExtension
 }
