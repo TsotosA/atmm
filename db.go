@@ -192,6 +192,7 @@ func CleanupBucket(bucket string, currentKeys []string) bool {
 				return false
 			}
 		}
+		existsInFS = false
 	}
 	return true
 }
