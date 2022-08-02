@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os"
+	"time"
 )
 
 func HandleTvShows() error {
@@ -106,7 +107,14 @@ func HandleTvShows() error {
 			continue
 		}
 
-		err = CopyFileToLocation(show.AbsolutePath, destination)
+		isDone := IsFileDoneBeingWritten(show.AbsolutePath, 1*time.Second, TvShow)
+		zap.S().Infof("isDone: %t - show: %s", isDone, show.AbsolutePath)
+		if !isDone {
+			_ = SaveTvShowEpisodeFileToDb(filesFoundInScan[i])
+			continue
+		}
+
+		err = CopyFileToLocation(show.AbsolutePath, destination, TvShow)
 		if err != nil {
 			fmt.Println(err)
 			_ = SaveTvShowEpisodeFileToDb(filesFoundInScan[i])

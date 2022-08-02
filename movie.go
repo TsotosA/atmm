@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os"
+	"time"
 )
 
 func HandleMovies() error {
@@ -95,9 +96,15 @@ func HandleMovies() error {
 			}
 			continue
 		}
-		//zap.S().Debugf("%t", fileExists)
 
-		err = CopyFileToLocation(movie.AbsolutePath, destination)
+		isDone := IsFileDoneBeingWritten(movie.AbsolutePath, 1*time.Second, Movie)
+		zap.S().Infof("isDone: %t - movie: %s", isDone, movie.AbsolutePath)
+		if !isDone {
+			_ = SaveMovieFileToDb(filesFoundInScan[i])
+			continue
+		}
+
+		err = CopyFileToLocation(movie.AbsolutePath, destination, Movie)
 		if err != nil {
 			fmt.Println(err)
 			_ = SaveMovieFileToDb(filesFoundInScan[i])

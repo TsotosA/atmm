@@ -62,12 +62,20 @@ func main() {
 }
 
 func RunTvShowsAsCronJob() {
+	if WaitingSeriesToFinishCopying {
+		zap.S().Infof("skipping tv show run due to copying files")
+		return
+	}
 	err := HandleTvShows()
 	if err != nil {
 		return
 	}
 }
 func RunMoviesAsCronJob() {
+	if WaitingMoviesToFinishCopying {
+		zap.S().Infof("skipping movies run due to copying files")
+		return
+	}
 	err := HandleMovies()
 	if err != nil {
 		return

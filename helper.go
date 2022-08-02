@@ -9,13 +9,25 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 )
 
-func CopyFileToLocation(srcFilePath, destFilePath string) error {
+func CopyFileToLocation(srcFilePath, destFilePath string, t string) error {
 	//zap.S().Info("srcFilePath:", srcFilePath, "destFilePath:", destFilePath)
 	zap.S().Infof("copying filepath [%v] to [%v]", srcFilePath, destFilePath)
+	if t == TvShow {
+		WaitingSeriesToFinishCopying = true
+		defer func() {
+			WaitingSeriesToFinishCopying = false
+		}()
+	}
+	if t == Movie {
+		WaitingMoviesToFinishCopying = true
+		defer func() {
+			WaitingMoviesToFinishCopying = false
+		}()
+	}
 	//check if dir exists and create it if it doesn't
-
 	tmpFile, err := os.Create(fmt.Sprintf("%s.part", destFilePath)) // creates if file doesn't exist
 	if err != nil {
 		return err
@@ -100,4 +112,28 @@ func CurrrentBinaryAbsolutePath() (string, error) {
 
 func IsPartialFile(p string) bool {
 	return filepath.Ext(p) == PartialFileExtension
+}
+
+func IsFileDoneBeingWritten(path string, sleepFor time.Duration, t string) bool {
+	if t == TvShow {
+		WaitingSeriesToFinishCopying = true
+		defer func() {
+			WaitingSeriesToFinishCopying = false
+		}()
+	}
+	if t == Movie {
+		WaitingMoviesToFinishCopying = true
+		defer func() {
+			WaitingMoviesToFinishCopying = false
+		}()
+	}
+	response := false
+	stat1, err := os.Stat(path)
+	time.Sleep(sleepFor)
+	stat2, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	response = stat1.ModTime() == stat2.ModTime()
+	return response
 }

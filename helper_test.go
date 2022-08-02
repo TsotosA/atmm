@@ -18,7 +18,7 @@ func TestCopyFileToLocation(t *testing.T) {
 		_ = os.RemoveAll("./tmp/")
 	})
 	zap.S().Infof("tmpDir1: %s, tmpDir2: %s", tmpDir1, tmpDir2)
-	_ = CopyFileToLocation(tmpDir1+"/"+"testFile", tmpDir2+"/"+"testFile")
+	_ = CopyFileToLocation(tmpDir1+"/"+"testFile", tmpDir2+"/"+"testFile", "")
 	created := CheckIfDirOrFileExists(tmpDir2 + "/" + "testFile")
 	if !created {
 		t.Errorf("failed to copy file to correct location")

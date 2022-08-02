@@ -1,6 +1,8 @@
 package main
 
 const (
+	TvShow                     = "tv_show"
+	Movie                      = "movie"
 	TvShowEpisodeFilesBucket   = "tv_show_episode_files"
 	MovieFilesBucket           = "movie_files"
 	GithubApiBaseUrl           = "https://api.github.com/"
