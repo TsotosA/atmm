@@ -83,6 +83,10 @@ func RunMoviesAsCronJob() {
 }
 
 func RunUpdateAsCronJob() {
+	if WaitingMoviesToFinishCopying || WaitingSeriesToFinishCopying {
+		zap.S().Infof("skipping update run due to copying files")
+		return
+	}
 	err := HandleUpdate()
 	if err != nil {
 		return
