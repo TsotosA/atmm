@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -23,6 +24,106 @@ func TestGetResolution(t *testing.T) {
 			r, _ := getMovieResolution(tt.s)
 			if r != tt.e {
 				t.Errorf("got [%s], wanted [%s]", r, tt.e)
+			}
+		})
+	}
+}
+
+func TestGetMovieYear(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "year - happy path",
+			args:    args{s: "Escape.from.Pretoria.2020.WEB-DL.DD5.1.H264-FGT"},
+			want:    "2020",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getMovieYear(tt.args.s)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getMovieYear() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getMovieYear() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetMovieTitle(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "parse success",
+			args:    args{s: "Escape.from.Pretoria.2020.WEB-DL.DD5.1.H264-FGT"},
+			want:    "Escape.from.Pretoria.",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getMovieTitle(tt.args.s)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getMovieTitle() error = %+v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getMovieTitle() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseMovieFilename(t *testing.T) {
+	type args struct {
+		filename string
+	}
+	tests := []struct {
+		name               string
+		args               args
+		wantParsedFilename ParsedFilename
+		wantErr            bool
+	}{
+		{
+			name: "year - happy path",
+			args: args{"Escape.from.Pretoria.2020.WEB-DL.DD5.1.H264-FGT"},
+			wantParsedFilename: ParsedFilename{
+				Name:          "",
+				Title:         "Escape from Pretoria",
+				SeasonNumber:  "",
+				EpisodeNumber: "",
+				Year:          "2020",
+				Resolution:    "",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotParsedFilename, err := ParseMovieFilename(tt.args.filename)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseMovieFilename() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotParsedFilename, tt.wantParsedFilename) {
+				t.Errorf("ParseMovieFilename() gotParsedFilename = %v, want %v", gotParsedFilename, tt.wantParsedFilename)
 			}
 		})
 	}

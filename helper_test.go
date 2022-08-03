@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestCopyFileToLocation(t *testing.T) {
@@ -113,7 +114,7 @@ func TestVerifyFilesizeOfPaths(t *testing.T) {
 
 func TestCurrrentBinaryAbsolutePath(t *testing.T) {
 	t.Run("locate binary", func(t *testing.T) {
-		want, _ := os.Executable()
+		want, err := CurrrentBinaryAbsolutePath()
 		index := strings.LastIndex(want, "\\") + 1
 		path := want[:index]
 		executable := want[index:]
@@ -127,5 +128,57 @@ func TestCurrrentBinaryAbsolutePath(t *testing.T) {
 		if !containsExe {
 			t.Errorf("got [%v],wanted [%#v]", containsExe, "true")
 		}
+
+		if want == "" || err != nil {
+			t.Errorf("got [%v],wanted [%#v]", containsExe, "true")
+		}
 	})
+}
+
+func TestIsFileDoneBeingWritten(t *testing.T) {
+	_ = os.Mkdir(TmpDir, 0777)
+	tmpDir1, _ := ioutil.TempDir(TmpDir, "testDir*")
+	_ = os.WriteFile(tmpDir1+"/"+"testFile", []byte("test input"), 0777)
+	t.Cleanup(func() {
+		t.Logf("cleanup function")
+		_ = os.RemoveAll("./tmp/")
+	})
+	type args struct {
+		path     string
+		sleepFor time.Duration
+		t        string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "not used",
+			args: args{
+				path:     tmpDir1 + "/" + "testFile",
+				sleepFor: 200 * time.Millisecond,
+				t:        Movie,
+			},
+			want: true,
+		},
+		{
+			name: "not used",
+			args: args{
+				path:     tmpDir1 + "/" + "testFile",
+				sleepFor: 200 * time.Millisecond,
+				t:        TvShow,
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsFileDoneBeingWritten(tt.args.path, tt.args.sleepFor, tt.args.t); got != tt.want {
+				t.Errorf("IsFileDoneBeingWritten() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
 }

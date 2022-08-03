@@ -2,7 +2,7 @@ package debounce_test
 
 import (
 	"fmt"
-	"media-manager/debounce"
+	"github.com/tsotosa/atmm/debounce"
 	"sync"
 	"sync/atomic"
 	"testing"
