@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -108,4 +109,23 @@ func TestVerifyFilesizeOfPaths(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCurrrentBinaryAbsolutePath(t *testing.T) {
+	t.Run("locate binary", func(t *testing.T) {
+		want, _ := os.Executable()
+		index := strings.LastIndex(want, "\\") + 1
+		path := want[:index]
+		executable := want[index:]
+		dirContents, _ := ioutil.ReadDir(path)
+		containsExe := false
+		for _, content := range dirContents {
+			if content.Name() == executable {
+				containsExe = true
+			}
+		}
+		if !containsExe {
+			t.Errorf("got [%v],wanted [%#v]", containsExe, "true")
+		}
+	})
 }
