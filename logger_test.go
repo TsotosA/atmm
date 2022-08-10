@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetLogger(t *testing.T) {
-	ConfigInit()
+	//ConfigInit()
 	logger, _ := InitLogger("testLog.log")
 	undo := zap.ReplaceGlobals(logger)
 	t.Cleanup(func() {

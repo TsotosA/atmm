@@ -3,31 +3,33 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"regexp"
 	"strings"
 )
 
-func ParseMovieFilename(filename string) (parsedFilename ParsedFilename, err error) {
+func ParseMovieFilename(filename string) (parsedFilename model.ParsedFilename, err error) {
 	t, err := getMovieTitle(filename)
 	e, err := getMovieYear(filename)
 	r, _ := getMovieResolution(filename)
 
 	if err != nil {
 		fmt.Printf("skipping %v. could not match title to search for.\n", filename)
-		return ParsedFilename{}, errors.New("failed to parse filename")
+		return model.ParsedFilename{}, errors.New("failed to parse filename")
 	}
 	t = strings.Replace(t, ".", " ", -1)
 	t = strings.TrimSpace(t)
 
-	return ParsedFilename{
+	return model.ParsedFilename{
 		Title:      t,
 		Year:       e,
 		Resolution: r,
 	}, nil
 }
 func getMovieTitle(s string) (string, error) {
-	rxp, err := regexp.Compile(MovieTitleRegexp)
+	rxp, err := regexp.Compile(gconst.MovieTitleRegexp)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +43,7 @@ func getMovieTitle(s string) (string, error) {
 }
 
 func getMovieYear(s string) (string, error) {
-	rxp, err := regexp.Compile(MovieYearRegexp)
+	rxp, err := regexp.Compile(gconst.MovieYearRegexp)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +57,7 @@ func getMovieYear(s string) (string, error) {
 }
 
 func getMovieResolution(s string) (string, error) {
-	rxp, err := regexp.Compile(MovieResolutionRegexp)
+	rxp, err := regexp.Compile(gconst.MovieResolutionRegexp)
 	if err != nil {
 		return "", err
 	}

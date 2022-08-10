@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/tsotosa/atmm/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -34,7 +35,7 @@ func InitLogger(logFile string) (logger *zap.Logger, err error) {
 	}
 	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
-	if Conf.Environment == "dev" {
+	if config.Conf.Environment == "dev" {
 		encoderConfig = zapcore.EncoderConfig{
 			MessageKey:     "msg",
 			LevelKey:       "level",
@@ -54,10 +55,10 @@ func InitLogger(logFile string) (logger *zap.Logger, err error) {
 
 	ws := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   logFile,
-		MaxSize:    Conf.LogRotateMaxLogFileSize, //MB
-		MaxBackups: Conf.LogRotateMaxNumOfBackups,
-		MaxAge:     Conf.LogRotateMaxAgeOfBackups, //days
-		Compress:   Conf.LogRotateCompressBackups,
+		MaxSize:    config.Conf.LogRotateMaxLogFileSize, //MB
+		MaxBackups: config.Conf.LogRotateMaxNumOfBackups,
+		MaxAge:     config.Conf.LogRotateMaxAgeOfBackups, //days
+		Compress:   config.Conf.LogRotateCompressBackups,
 	})
 	core := zapcore.NewCore(
 		encoder,
@@ -72,8 +73,8 @@ func InitLogger(logFile string) (logger *zap.Logger, err error) {
 }
 
 func getLevel() zap.AtomicLevel {
-	if Conf.LogLevel != "" {
-		switch Conf.LogLevel {
+	if config.Conf.LogLevel != "" {
+		switch config.Conf.LogLevel {
 		case "debug":
 			return zap.NewAtomicLevelAt(zap.DebugLevel)
 		case "info":

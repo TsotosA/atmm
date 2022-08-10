@@ -2,6 +2,12 @@ package main
 
 import (
 	"github.com/robfig/cron/v3"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/global"
+	"github.com/tsotosa/atmm/model"
+	"github.com/tsotosa/atmm/web/api"
+	ui_serve "github.com/tsotosa/atmm/web/ui-serve"
 	"go.uber.org/zap"
 	"sync"
 )
@@ -13,9 +19,9 @@ var (
 )
 
 func main() {
-	ConfigInit()
+	config.ConfigInit(C, &mwg, GetCronJobs())
 
-	logger, err := InitLogger(Conf.LogOutputPath)
+	logger, err := InitLogger(config.Conf.LogOutputPath)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +39,7 @@ func main() {
 	defer undo()
 
 	// >>bbolt
-	err = InitBolt("atmm.db", []string{TvShowEpisodeFilesBucket, MovieFilesBucket})
+	err = InitBolt("atmm.db", []string{gconst.TvShowEpisodeFilesBucket, gconst.MovieFilesBucket})
 	if err != nil {
 		zap.S().Fatalf("failed to init db: error is: %v\n", err)
 		return
@@ -54,6 +60,16 @@ func main() {
 		}
 	}
 
+	if config.Conf.ApiPort != 0 {
+		mwg.Add(1)
+		go api.Up()
+	}
+
+	if config.Conf.UiPort != 0 {
+		mwg.Add(1)
+		go ui_serve.Up()
+	}
+
 	C.Start()
 	mwg.Wait()
 	if err != nil {
@@ -62,7 +78,7 @@ func main() {
 }
 
 func RunTvShowsAsCronJob() {
-	if WaitingSeriesToFinishCopying {
+	if global.WaitingSeriesToFinishCopying {
 		zap.S().Infof("skipping tv show run due to copying files")
 		return
 	}
@@ -72,7 +88,7 @@ func RunTvShowsAsCronJob() {
 	}
 }
 func RunMoviesAsCronJob() {
-	if WaitingMoviesToFinishCopying {
+	if global.WaitingMoviesToFinishCopying {
 		zap.S().Infof("skipping movies run due to copying files")
 		return
 	}
@@ -83,7 +99,7 @@ func RunMoviesAsCronJob() {
 }
 
 func RunUpdateAsCronJob() {
-	if WaitingMoviesToFinishCopying || WaitingSeriesToFinishCopying {
+	if global.WaitingMoviesToFinishCopying || global.WaitingSeriesToFinishCopying {
 		zap.S().Infof("skipping update run due to copying files")
 		return
 	}
@@ -99,4 +115,26 @@ func RunDbCleanupAsCronJob() {
 		return
 	}
 
+}
+
+func GetCronJobs() []model.CronJob {
+	res := []model.CronJob{
+		{
+			ScheduleToUse: config.Conf.Cron,
+			MethodToRun:   RunTvShowsAsCronJob,
+		},
+		{
+			ScheduleToUse: config.Conf.CheckForUpdatesInterval,
+			MethodToRun:   RunUpdateAsCronJob,
+		},
+		{
+			ScheduleToUse: config.Conf.ScanForMovieInterval,
+			MethodToRun:   RunMoviesAsCronJob,
+		},
+		{
+			ScheduleToUse: config.Conf.DbBucketsCleanupInterval,
+			MethodToRun:   RunDbCleanupAsCronJob,
+		},
+	}
+	return res
 }

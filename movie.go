@@ -2,15 +2,19 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/helper"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"os"
 	"time"
 )
 
 func HandleMovies() error {
-	rootMovieScanDir := Conf.RootMovieScanDir
-	rootMovieMediaDir := Conf.RootMovieMediaDir
-	filesFoundInScan := make([]MovieFile, 0)
+	rootMovieScanDir := config.Conf.RootMovieScanDir
+	rootMovieMediaDir := config.Conf.RootMovieMediaDir
+	filesFoundInScan := make([]model.MovieFile, 0)
 	err := ScanForMovieFiles(rootMovieScanDir, &filesFoundInScan)
 	zap.S().Infof("found %v files in scan", len(filesFoundInScan))
 	if err != nil {
@@ -47,7 +51,7 @@ func HandleMovies() error {
 			return err
 		}
 		movieTitleFormat := filename
-		sanitised, err := SanitizeForWindowsPathOrFile(movieTitleFormat)
+		sanitised, err := helper.SanitizeForWindowsPathOrFile(movieTitleFormat)
 		if err != nil {
 			continue
 		}
@@ -64,7 +68,7 @@ func HandleMovies() error {
 			continue
 		}
 
-		sanitisedTitle, err := SanitizeForWindowsPathOrFile(movie.Movie.Title)
+		sanitisedTitle, err := helper.SanitizeForWindowsPathOrFile(movie.Movie.Title)
 		if err != nil {
 			zap.S().Warnf("entry was not processed successfully. skipping %s \n", movie.FilenameOriginal)
 			continue
@@ -86,7 +90,7 @@ func HandleMovies() error {
 			continue
 		}
 		//
-		fileExists := CheckIfDirOrFileExists(destination)
+		fileExists := helper.CheckIfDirOrFileExists(destination)
 		if fileExists {
 			zap.S().Infof("skipping file copy, already exists at destination: [%v]", destination)
 			filesFoundInScan[i].SuccessfulCopyFile = true
@@ -97,21 +101,21 @@ func HandleMovies() error {
 			continue
 		}
 
-		isDone := IsFileDoneBeingWritten(movie.AbsolutePath, 1*time.Second, Movie)
+		isDone := helper.IsFileDoneBeingWritten(movie.AbsolutePath, 1*time.Second, gconst.Movie)
 		zap.S().Infof("isDone: %t - movie: %s", isDone, movie.AbsolutePath)
 		if !isDone {
 			_ = SaveMovieFileToDb(filesFoundInScan[i])
 			continue
 		}
 
-		err = CopyFileToLocation(movie.AbsolutePath, destination, Movie)
+		err = helper.CopyFileToLocation(movie.AbsolutePath, destination, gconst.Movie)
 		if err != nil {
 			fmt.Println(err)
 			_ = SaveMovieFileToDb(filesFoundInScan[i])
 			continue
 		}
 
-		_, err = VerifyFilesizeOfPaths(movie.AbsolutePath, destination)
+		_, err = helper.VerifyFilesizeOfPaths(movie.AbsolutePath, destination)
 		if err != nil {
 			_ = SaveMovieFileToDb(filesFoundInScan[i])
 			continue

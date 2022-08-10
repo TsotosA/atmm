@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/tsotosa/atmm/model"
 	"reflect"
 	"testing"
 )
@@ -12,13 +13,13 @@ func TestParseMovieFilenameCustomFormat(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []FilenameFormatPair
+		want    []model.FilenameFormatPair
 		wantErr bool
 	}{
 		{
 			name: "happy path",
 			args: args{f: "{MovieTitle} {MovieReleaseYear:0000} {Resolution}"},
-			want: []FilenameFormatPair{
+			want: []model.FilenameFormatPair{
 				{
 					StartIndex:    0,
 					EndIndex:      11,

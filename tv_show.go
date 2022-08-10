@@ -2,16 +2,20 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/helper"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"os"
 	"time"
 )
 
 func HandleTvShows() error {
-	rootScanDir := Conf.RootScanDir
-	rootMediaDir := Conf.RootMediaDir
+	rootScanDir := config.Conf.RootScanDir
+	rootMediaDir := config.Conf.RootMediaDir
 
-	filesFoundInScan := make([]TvShowEpisodeFile, 0)
+	filesFoundInScan := make([]model.TvShowEpisodeFile, 0)
 
 	err := ScanForTvShowFiles(rootScanDir, &filesFoundInScan)
 	zap.S().Infof("found %v files in scan", len(filesFoundInScan))
@@ -63,7 +67,7 @@ func HandleTvShows() error {
 		}
 		//episodeTitleFormat := fmt.Sprintf("%s S%02dE%02d - %s%s", filesFoundInScan[i].TvShow.Name, filesFoundInScan[i].TvShowEpisode.SeasonNumber, filesFoundInScan[i].TvShowEpisode.EpisodeNumber, filesFoundInScan[i].TvShowEpisode.Name, filepath.Ext(filesFoundInScan[i].FilenameOriginal))
 		episodeTitleFormat := filename
-		sanitised, err := SanitizeForWindowsPathOrFile(episodeTitleFormat)
+		sanitised, err := helper.SanitizeForWindowsPathOrFile(episodeTitleFormat)
 		if err != nil {
 			continue
 		}
@@ -85,7 +89,7 @@ func HandleTvShows() error {
 		destination := fmt.Sprintf("%s/%s/Season %02d/%s", rootMediaDir, show.TvShow.Name, show.TvShowEpisode.SeasonNumber, show.FilenameNew)
 
 		//todo: find more generic way to handle dry runs
-		if Conf.DryRun {
+		if config.Conf.DryRun {
 			return nil
 		}
 
@@ -96,7 +100,7 @@ func HandleTvShows() error {
 			continue
 		}
 
-		fileExists := CheckIfDirOrFileExists(destination)
+		fileExists := helper.CheckIfDirOrFileExists(destination)
 		if fileExists {
 			zap.S().Infof("skipping file copy, already exists at destination: [%v]", destination)
 			filesFoundInScan[i].SuccessfulCopyFile = true
@@ -107,21 +111,21 @@ func HandleTvShows() error {
 			continue
 		}
 
-		isDone := IsFileDoneBeingWritten(show.AbsolutePath, 1*time.Second, TvShow)
+		isDone := helper.IsFileDoneBeingWritten(show.AbsolutePath, 1*time.Second, gconst.TvShow)
 		zap.S().Infof("isDone: %t - show: %s", isDone, show.AbsolutePath)
 		if !isDone {
 			_ = SaveTvShowEpisodeFileToDb(filesFoundInScan[i])
 			continue
 		}
 
-		err = CopyFileToLocation(show.AbsolutePath, destination, TvShow)
+		err = helper.CopyFileToLocation(show.AbsolutePath, destination, gconst.TvShow)
 		if err != nil {
 			fmt.Println(err)
 			_ = SaveTvShowEpisodeFileToDb(filesFoundInScan[i])
 			continue
 		}
 
-		_, err = VerifyFilesizeOfPaths(show.AbsolutePath, destination)
+		_, err = helper.VerifyFilesizeOfPaths(show.AbsolutePath, destination)
 		if err != nil {
 			_ = SaveTvShowEpisodeFileToDb(filesFoundInScan[i])
 			continue

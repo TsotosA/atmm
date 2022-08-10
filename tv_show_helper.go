@@ -3,12 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"regexp"
 	"strings"
 )
 
-func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err error) {
+func ParseTvShowFilename(filename string) (parsedFilename model.ParsedFilename, err error) {
 	s, err := getSeason(filename)
 	e, err := getEpisode(filename)
 	t, err := getTitle(filename)
@@ -16,7 +18,7 @@ func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err er
 
 	if err != nil {
 		fmt.Printf("skipping %v. could not match title to search for.\n", filename)
-		return ParsedFilename{}, errors.New("failed to parse filename")
+		return model.ParsedFilename{}, errors.New("failed to parse filename")
 	}
 	//titleRegexp, _ := regexp.Compile(Conf.TvShowTitleRegexp)
 	//x := titleRegexp.FindStringSubmatch(filename)
@@ -40,7 +42,7 @@ func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err er
 	//	EpisodeNumber: episode,
 	//}, nil
 
-	return ParsedFilename{
+	return model.ParsedFilename{
 		Name:          t,
 		SeasonNumber:  s,
 		EpisodeNumber: e,
@@ -49,7 +51,7 @@ func ParseTvShowFilename(filename string) (parsedFilename ParsedFilename, err er
 }
 
 func getSeason(s string) (string, error) {
-	rxp, err := regexp.Compile(TvShowSeasonRegexp)
+	rxp, err := regexp.Compile(gconst.TvShowSeasonRegexp)
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +65,7 @@ func getSeason(s string) (string, error) {
 }
 
 func getEpisode(s string) (string, error) {
-	rxp, err := regexp.Compile(TvShowEpisodeSingleRegexp)
+	rxp, err := regexp.Compile(gconst.TvShowEpisodeSingleRegexp)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +79,7 @@ func getEpisode(s string) (string, error) {
 }
 
 func getTitle(s string) (string, error) {
-	rxp, err := regexp.Compile(TvShowEpisodeTitleRegexp)
+	rxp, err := regexp.Compile(gconst.TvShowEpisodeTitleRegexp)
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +93,7 @@ func getTitle(s string) (string, error) {
 }
 
 func getResolution(s string) (string, error) {
-	rxp, err := regexp.Compile(TvShowResolutionRegexp)
+	rxp, err := regexp.Compile(gconst.TvShowResolutionRegexp)
 	if err != nil {
 		return "", err
 	}

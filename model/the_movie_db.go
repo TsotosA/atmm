@@ -1,4 +1,4 @@
-package main
+package model
 
 type TheMovieDbSearchTvResponse struct {
 	Page         int                `json:"page"`

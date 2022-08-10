@@ -1,4 +1,4 @@
-package main
+package gconst
 
 const (
 	TvShow                     = "tv_show"
@@ -110,5 +110,9 @@ logRotateMaxLogFileSize: 1
 
 ### determines if the rotated log files should be compressed  using gzip
 logRotateCompressBackups: true
+
+apiPort: 1323
+
+uiPort: 3000
 `
 )

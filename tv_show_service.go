@@ -3,15 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"io/fs"
 	"path/filepath"
 )
 
-func ScanForTvShowFiles(rootScanDir string, filesToHandle *[]TvShowEpisodeFile) error {
+func ScanForTvShowFiles(rootScanDir string, filesToHandle *[]model.TvShowEpisodeFile) error {
 	err := filepath.WalkDir(rootScanDir, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
-			s := TvShowEpisodeFile{
+			s := model.TvShowEpisodeFile{
 				FilenameOriginal: d.Name(),
 				AbsolutePath:     fmt.Sprintf("%v", path),
 			}
@@ -25,17 +28,17 @@ func ScanForTvShowFiles(rootScanDir string, filesToHandle *[]TvShowEpisodeFile) 
 	return nil
 }
 
-func RemoveAlreadyHandledTvShows(filesToHandle *[]TvShowEpisodeFile) {
-	var x []TvShowEpisodeFile
+func RemoveAlreadyHandledTvShows(filesToHandle *[]model.TvShowEpisodeFile) {
+	var x []model.TvShowEpisodeFile
 	for _, file := range *filesToHandle {
-		y := Get([]byte(TvShowEpisodeFilesBucket), []byte(file.AbsolutePath))
+		y := Get([]byte(gconst.TvShowEpisodeFilesBucket), []byte(file.AbsolutePath))
 		//zap.S().Infof("found in db: [%s]", y)
 		if y == nil {
 			//zap.S().Infof("not found in db")
 			x = append(x, file)
 			continue
 		}
-		var s TvShowEpisodeFile
+		var s model.TvShowEpisodeFile
 		err := json.Unmarshal(y, &s)
 		if err != nil {
 			zap.S().Warnf("failed to unmarshall: [%s]", y)
@@ -46,7 +49,7 @@ func RemoveAlreadyHandledTvShows(filesToHandle *[]TvShowEpisodeFile) {
 			//zap.S().Infof("remove from slice: [%s]", y)
 			continue
 		}
-		if (!s.SuccessfulCopyFile || !s.SuccessfulParseOriginal) && !Conf.TvShowEpisodeFileRetryFailed {
+		if (!s.SuccessfulCopyFile || !s.SuccessfulParseOriginal) && !config.Conf.TvShowEpisodeFileRetryFailed {
 			//zap.S().Infof("remove from slice: [%s]", y)
 			continue
 		}
@@ -55,14 +58,14 @@ func RemoveAlreadyHandledTvShows(filesToHandle *[]TvShowEpisodeFile) {
 	*filesToHandle = x
 }
 
-func SaveTvShowEpisodeFileToDb(f TvShowEpisodeFile) error {
+func SaveTvShowEpisodeFileToDb(f model.TvShowEpisodeFile) error {
 	encoded, err := json.Marshal(f)
 	if err != nil {
 		zap.S().Warnf("failed to marshal show, cannot store it to db. struct is: %#v", f)
 		return err
 		//continue
 	}
-	err = Put([]byte(TvShowEpisodeFilesBucket), []byte(f.AbsolutePath), encoded)
+	err = Put([]byte(gconst.TvShowEpisodeFilesBucket), []byte(f.AbsolutePath), encoded)
 	if err != nil {
 		zap.S().Warnf("failed to save show, cannot store it to db. encoded is: %#v", encoded)
 		return err

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/model"
 	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"log"
@@ -198,8 +201,8 @@ func CleanupBucket(bucket string, currentKeys []string) bool {
 }
 
 func HandleDbCleanup() error {
-	rootMovieScanDir := Conf.RootMovieScanDir
-	movieFilesFoundInScan := make([]MovieFile, 0)
+	rootMovieScanDir := config.Conf.RootMovieScanDir
+	movieFilesFoundInScan := make([]model.MovieFile, 0)
 	err := ScanForMovieFiles(rootMovieScanDir, &movieFilesFoundInScan)
 	zap.S().Infof("found %v files in scan", len(movieFilesFoundInScan))
 	if err != nil {
@@ -211,10 +214,10 @@ func HandleDbCleanup() error {
 	for _, file := range movieFilesFoundInScan {
 		currentFsMoviePaths = append(currentFsMoviePaths, file.AbsolutePath)
 	}
-	CleanupBucket(MovieFilesBucket, currentFsMoviePaths)
+	CleanupBucket(gconst.MovieFilesBucket, currentFsMoviePaths)
 
-	rootScanDir := Conf.RootScanDir
-	tvShowFilesFoundInScan := make([]TvShowEpisodeFile, 0)
+	rootScanDir := config.Conf.RootScanDir
+	tvShowFilesFoundInScan := make([]model.TvShowEpisodeFile, 0)
 	err = ScanForTvShowFiles(rootScanDir, &tvShowFilesFoundInScan)
 	zap.S().Infof("found %v files in scan", len(tvShowFilesFoundInScan))
 	if err != nil {
@@ -226,7 +229,7 @@ func HandleDbCleanup() error {
 	for _, file := range tvShowFilesFoundInScan {
 		currentFsTvShowPaths = append(currentFsTvShowPaths, file.AbsolutePath)
 	}
-	CleanupBucket(TvShowEpisodeFilesBucket, currentFsTvShowPaths)
+	CleanupBucket(gconst.TvShowEpisodeFilesBucket, currentFsTvShowPaths)
 
 	return nil
 }

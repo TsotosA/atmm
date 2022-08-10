@@ -3,16 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/tsotosa/atmm/model"
 	"testing"
 )
 
 func TestParseTvShowFilename(t *testing.T) {
 	var tests = []struct {
 		input    string
-		expected ParsedFilename
+		expected model.ParsedFilename
 		error    error
 	}{
-		{"The.Book.of.Boba.Fett.S01E07.Chapter.7.720p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-NOSiViD.mkv", ParsedFilename{Name: "The Book of Boba Fett", SeasonNumber: "01", EpisodeNumber: "07", Resolution: "720p"}, nil},
+		{"The.Book.of.Boba.Fett.S01E07.Chapter.7.720p.DSNP.WEB-DL.DDP5.1.Atmos.H.264-NOSiViD.mkv", model.ParsedFilename{Name: "The Book of Boba Fett", SeasonNumber: "01", EpisodeNumber: "07", Resolution: "720p"}, nil},
 	}
 
 	for _, tt := range tests {

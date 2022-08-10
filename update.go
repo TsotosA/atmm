@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/helper"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"os"
 	"runtime"
@@ -16,7 +20,7 @@ func HandleUpdate() error {
 		zap.S().Warnf("could not get release list from github with err: %v", err)
 		return err
 	}
-	var releases []GithubRelease
+	var releases []model.GithubRelease
 	for i, _ := range allReleases {
 		if !allReleases[i].Draft {
 			releases = append(releases, allReleases[i])
@@ -36,7 +40,7 @@ func HandleUpdate() error {
 		return nil
 	}
 	latestVersionAssets := releases[0].Assets
-	var latestApplicableAsset GithubReleaseAsset
+	var latestApplicableAsset model.GithubReleaseAsset
 	for _, asset := range latestVersionAssets {
 		if strings.Contains(asset.Name, runtime.GOOS) {
 			zap.S().Infof("found matching new release asset to use for update: [%s]", asset.Name)
@@ -49,7 +53,7 @@ func HandleUpdate() error {
 	}
 	err = DownloadUrlToLocation(latestApplicableAsset.Name, latestApplicableAsset.Url, "./tmp/")
 	defer func() {
-		err := os.RemoveAll(TmpDir)
+		err := os.RemoveAll(gconst.TmpDir)
 		if err != nil {
 			zap.S().Warnf("failed to remove tmp directory")
 		}
@@ -58,7 +62,7 @@ func HandleUpdate() error {
 		zap.S().Warnf("could not download binary to tmp location with error: %v", err)
 		return err
 	}
-	path, err := CurrrentBinaryAbsolutePath()
+	path, err := helper.CurrrentBinaryAbsolutePath()
 	if err != nil {
 		zap.S().Warnf("could not get current binary path with error: %v", err)
 		return err
@@ -73,7 +77,7 @@ func HandleUpdate() error {
 		zap.S().Warnf("could not replace original binary with updated with error: %v", err)
 		return err
 	}
-	if Conf.IsAutoRestartManaged {
+	if config.Conf.IsAutoRestartManaged {
 		zap.S().Infof("IsAutoRestartManaged flag is true, exiting self and hoping somebody else will resurrect me :-)")
 		panic(Exit{3}) // 3 is the exit code
 	}

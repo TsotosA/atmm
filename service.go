@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"io"
 	"io/ioutil"
@@ -12,17 +15,17 @@ import (
 	"os"
 )
 
-func searchTvShow(query string) (response TheMovieDbSearchTvResponse, err error) {
+func searchTvShow(query string) (response model.TheMovieDbSearchTvResponse, err error) {
 	//fmt.Printf("\nsearching for tv show with query:%#v\n", query)
 
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodGet, Conf.TheMovieDbBaseApiUrlV3+"search/tv", nil)
+	req, err := http.NewRequest(http.MethodGet, config.Conf.TheMovieDbBaseApiUrlV3+"search/tv", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	q := req.URL.Query()
-	q.Add("api_key", Conf.ApiKey)
+	q.Add("api_key", config.Conf.ApiKey)
 	q.Add("query", query)
 	q.Add("language", "en-US")
 	q.Add("page", "1")
@@ -41,7 +44,7 @@ func searchTvShow(query string) (response TheMovieDbSearchTvResponse, err error)
 		log.Fatal(err)
 	}
 
-	var result TheMovieDbSearchTvResponse
+	var result model.TheMovieDbSearchTvResponse
 	if err := json.Unmarshal(responseBody, &result); err != nil {
 		fmt.Println("Failed to unmarshall JSON")
 		fmt.Println(err)
@@ -50,19 +53,19 @@ func searchTvShow(query string) (response TheMovieDbSearchTvResponse, err error)
 	return result, nil
 }
 
-func getTvShowEpisodeDetails(tvId, seasonNumber, episodeNumber string) (response TheMovieDbTvShowEpisodeDetails, err error) {
+func getTvShowEpisodeDetails(tvId, seasonNumber, episodeNumber string) (response model.TheMovieDbTvShowEpisodeDetails, err error) {
 	//fmt.Printf("\nsearching for tv show episode with query:%#v %#v %#v\n", tvId, seasonNumber, episodeNumber)
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet,
 		fmt.Sprintf("%s/tv/%s/season/%s/episode/%s",
-			Conf.TheMovieDbBaseApiUrlV3, tvId, seasonNumber, episodeNumber), nil)
+			config.Conf.TheMovieDbBaseApiUrlV3, tvId, seasonNumber, episodeNumber), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	q := req.URL.Query()
-	q.Add("api_key", Conf.ApiKey)
+	q.Add("api_key", config.Conf.ApiKey)
 	//q.Add("query", "query")
 	q.Add("language", "en-US")
 	//q.Add("page", "1")
@@ -83,10 +86,10 @@ func getTvShowEpisodeDetails(tvId, seasonNumber, episodeNumber string) (response
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return TheMovieDbTvShowEpisodeDetails{}, errors.New(string(rune(resp.StatusCode)))
+		return model.TheMovieDbTvShowEpisodeDetails{}, errors.New(string(rune(resp.StatusCode)))
 	}
 
-	var result TheMovieDbTvShowEpisodeDetails
+	var result model.TheMovieDbTvShowEpisodeDetails
 	if err := json.Unmarshal(responseBody, &result); err != nil {
 		fmt.Println("Failed to unmarshall JSON")
 		fmt.Println(err)
@@ -95,18 +98,18 @@ func getTvShowEpisodeDetails(tvId, seasonNumber, episodeNumber string) (response
 	return result, nil
 }
 
-func GetGithubReleases(page int) ([]GithubRelease, error) {
-	var res []GithubRelease
+func GetGithubReleases(page int) ([]model.GithubRelease, error) {
+	var res []model.GithubRelease
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet,
-		fmt.Sprintf("%srepos/%s/%s/releases", GithubApiBaseUrl, "TsotosA", "atmm"), nil)
+		fmt.Sprintf("%srepos/%s/%s/releases", gconst.GithubApiBaseUrl, "TsotosA", "atmm"), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Set("Accept", GithubJsonAcceptHeader)
-	if Conf.GithubUsername != "" && Conf.GithubPersonalToken != "" {
-		req.SetBasicAuth(Conf.GithubUsername, Conf.GithubPersonalToken)
+	req.Header.Set("Accept", gconst.GithubJsonAcceptHeader)
+	if config.Conf.GithubUsername != "" && config.Conf.GithubPersonalToken != "" {
+		req.SetBasicAuth(config.Conf.GithubUsername, config.Conf.GithubPersonalToken)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -141,9 +144,9 @@ func DownloadUrlToLocation(filename, url, location string) error {
 		zap.S().Warnf("could not download update binary with err: %v", err)
 		return err
 	}
-	req.Header.Set("Accept", HttpContentTypeOctetStream)
-	if Conf.GithubUsername != "" && Conf.GithubPersonalToken != "" {
-		req.SetBasicAuth(Conf.GithubUsername, Conf.GithubPersonalToken)
+	req.Header.Set("Accept", gconst.HttpContentTypeOctetStream)
+	if config.Conf.GithubUsername != "" && config.Conf.GithubPersonalToken != "" {
+		req.SetBasicAuth(config.Conf.GithubUsername, config.Conf.GithubPersonalToken)
 	}
 	res, err := client.Do(req)
 	if err != nil {
@@ -179,15 +182,15 @@ func DownloadUrlToLocation(filename, url, location string) error {
 	return nil
 }
 
-func searchMovie(query string) (response TheMovieDbSearchMovieResponse, err error) {
+func searchMovie(query string) (response model.TheMovieDbSearchMovieResponse, err error) {
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodGet, Conf.TheMovieDbBaseApiUrlV3+"search/movie", nil)
+	req, err := http.NewRequest(http.MethodGet, config.Conf.TheMovieDbBaseApiUrlV3+"search/movie", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	q := req.URL.Query()
-	q.Add("api_key", Conf.ApiKey)
+	q.Add("api_key", config.Conf.ApiKey)
 	q.Add("query", query)
 	q.Add("language", "en-US")
 	q.Add("page", "1")
@@ -206,7 +209,7 @@ func searchMovie(query string) (response TheMovieDbSearchMovieResponse, err erro
 		log.Fatal(err)
 	}
 
-	var result TheMovieDbSearchMovieResponse
+	var result model.TheMovieDbSearchMovieResponse
 	if err := json.Unmarshal(responseBody, &result); err != nil {
 		fmt.Println("Failed to unmarshall JSON")
 		fmt.Println(err)

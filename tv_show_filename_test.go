@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/model"
 	"reflect"
 	"testing"
 )
@@ -9,10 +11,10 @@ import (
 func TestParseFilenameCustomFormat(t *testing.T) {
 	var tests = []struct {
 		input    string
-		expected []FilenameFormatPair
+		expected []model.FilenameFormatPair
 		error    error
 	}{
-		{"{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}", []FilenameFormatPair{
+		{"{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}", []model.FilenameFormatPair{
 			{
 				StartIndex:    0,
 				EndIndex:      12,
@@ -55,19 +57,19 @@ func TestParseFilenameCustomFormat(t *testing.T) {
 
 func TestMapProperties(t *testing.T) {
 	var tests = []struct {
-		a        TvShowEpisodeFile
-		b        []FilenameFormatPair
-		expected []FilenameFormatPair
+		a        model.TvShowEpisodeFile
+		b        []model.FilenameFormatPair
+		expected []model.FilenameFormatPair
 		error    error
 	}{
-		{TvShowEpisodeFile{
+		{model.TvShowEpisodeFile{
 			FilenameOriginal: "",
 			FilenameNew:      "",
 			AbsolutePath:     "",
-			TvShow: TheMovieDbTvShow{
+			TvShow: model.TheMovieDbTvShow{
 				Name: "tv show name",
 			},
-			TvShowEpisode: TheMovieDbTvShowEpisodeDetails{
+			TvShowEpisode: model.TheMovieDbTvShowEpisodeDetails{
 				EpisodeNumber: 11,
 				Name:          "tv show episode name",
 				SeasonNumber:  22,
@@ -75,7 +77,7 @@ func TestMapProperties(t *testing.T) {
 			SuccessfulParseOriginal: false,
 			SuccessfulCopyFile:      false,
 		},
-			[]FilenameFormatPair{
+			[]model.FilenameFormatPair{
 				{
 					PropertyName:  "SeriesTitle",
 					PropertyValue: "",
@@ -93,7 +95,7 @@ func TestMapProperties(t *testing.T) {
 					PropertyValue: "",
 				},
 			},
-			[]FilenameFormatPair{
+			[]model.FilenameFormatPair{
 				{
 					PropertyName:  "SeriesTitle",
 					PropertyValue: "tv show name",
@@ -131,12 +133,12 @@ func TestMapProperties(t *testing.T) {
 func TestReplaceCustomFormatStringToTitle(t *testing.T) {
 	var tests = []struct {
 		a        string
-		b        []FilenameFormatPair
+		b        []model.FilenameFormatPair
 		expected string
 		error    error
 	}{
 		{"{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}",
-			[]FilenameFormatPair{
+			[]model.FilenameFormatPair{
 				{
 					PropertyName:  "SeriesTitle",
 					PropertyValue: "series title",
@@ -174,19 +176,19 @@ func TestReplaceCustomFormatStringToTitle(t *testing.T) {
 
 func TestMakeFilename(t *testing.T) {
 	var tests = []struct {
-		a        TvShowEpisodeFile
+		a        model.TvShowEpisodeFile
 		expected string
 		error    error
 	}{
 		{
-			TvShowEpisodeFile{
+			model.TvShowEpisodeFile{
 				FilenameOriginal: "",
 				FilenameNew:      "",
 				AbsolutePath:     "",
-				TvShow: TheMovieDbTvShow{
+				TvShow: model.TheMovieDbTvShow{
 					Name: "tv show name",
 				},
-				TvShowEpisode: TheMovieDbTvShowEpisodeDetails{
+				TvShowEpisode: model.TheMovieDbTvShowEpisodeDetails{
 					EpisodeNumber: 11,
 					Name:          "tv show episode name",
 					SeasonNumber:  22,
@@ -199,7 +201,7 @@ func TestMakeFilename(t *testing.T) {
 		},
 	}
 
-	Conf.TvShowEpisodeFormat = "{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}"
+	config.Conf.TvShowEpisodeFormat = "{SeriesTitle} S{Season:00}E{Episode:00} - {EpisodeTitle}"
 	for _, tt := range tests {
 		testHName := fmt.Sprintf("a,expected,error:[%v],[%v],[%v]", tt.a, tt.expected, tt.error)
 		t.Run(testHName, func(t *testing.T) {

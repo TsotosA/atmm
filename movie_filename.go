@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"path/filepath"
 	"regexp"
 )
 
-func ParseMovieFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
+func ParseMovieFilenameCustomFormat(f string) ([]model.FilenameFormatPair, error) {
 	openingCurly := 0
 	closingCurly := 0
 	currentFind := ""
-	pairs := make([]FilenameFormatPair, 0)
+	pairs := make([]model.FilenameFormatPair, 0)
 
 	for i, v := range f {
 		if string(v) == "{" {
@@ -27,7 +29,7 @@ func ParseMovieFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
 		addPair := closingCurly != 0 && currentFind == "closingCurly"
 
 		if addPair {
-			pairs = append(pairs, FilenameFormatPair{
+			pairs = append(pairs, model.FilenameFormatPair{
 				StartIndex:   openingCurly,
 				EndIndex:     closingCurly,
 				PropertyName: f[openingCurly+1 : closingCurly],
@@ -40,7 +42,7 @@ func ParseMovieFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
 	return pairs, nil
 }
 
-func MapMovieFilenameProperties(o MovieFile, ffp []FilenameFormatPair) error {
+func MapMovieFilenameProperties(o model.MovieFile, ffp []model.FilenameFormatPair) error {
 	for i, pair := range ffp {
 		switch pair.PropertyName {
 		case "MovieTitle":
@@ -57,7 +59,7 @@ func MapMovieFilenameProperties(o MovieFile, ffp []FilenameFormatPair) error {
 	return nil
 }
 
-func ReplaceCustomMovieFormatStringToTitle(s string, p []FilenameFormatPair) (string, error) {
+func ReplaceCustomMovieFormatStringToTitle(s string, p []model.FilenameFormatPair) (string, error) {
 	t := s
 	for _, pair := range p {
 		reg, err := regexp.Compile(fmt.Sprintf("{%s}", pair.PropertyName))
@@ -69,8 +71,8 @@ func ReplaceCustomMovieFormatStringToTitle(s string, p []FilenameFormatPair) (st
 	return t, nil
 }
 
-func MakeMovieFilename(o MovieFile) (string, error) {
-	customFormat := Conf.MovieCustomFormat
+func MakeMovieFilename(o model.MovieFile) (string, error) {
+	customFormat := config.Conf.MovieCustomFormat
 	formatPairs, err := ParseMovieFilenameCustomFormat(customFormat)
 	if err != nil {
 		return "", err

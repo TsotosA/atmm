@@ -1,8 +1,10 @@
-package main
+package helper
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/global"
 	"go.uber.org/zap"
 	"io"
 	"os"
@@ -15,16 +17,16 @@ import (
 func CopyFileToLocation(srcFilePath, destFilePath string, t string) error {
 	//zap.S().Info("srcFilePath:", srcFilePath, "destFilePath:", destFilePath)
 	zap.S().Infof("copying filepath [%v] to [%v]", srcFilePath, destFilePath)
-	if t == TvShow {
-		WaitingSeriesToFinishCopying = true
+	if t == gconst.TvShow {
+		global.WaitingSeriesToFinishCopying = true
 		defer func() {
-			WaitingSeriesToFinishCopying = false
+			global.WaitingSeriesToFinishCopying = false
 		}()
 	}
-	if t == Movie {
-		WaitingMoviesToFinishCopying = true
+	if t == gconst.Movie {
+		global.WaitingMoviesToFinishCopying = true
 		defer func() {
-			WaitingMoviesToFinishCopying = false
+			global.WaitingMoviesToFinishCopying = false
 		}()
 	}
 	//check if dir exists and create it if it doesn't
@@ -111,20 +113,20 @@ func CurrrentBinaryAbsolutePath() (string, error) {
 }
 
 func IsPartialFile(p string) bool {
-	return filepath.Ext(p) == PartialFileExtension
+	return filepath.Ext(p) == gconst.PartialFileExtension
 }
 
 func IsFileDoneBeingWritten(path string, sleepFor time.Duration, t string) bool {
-	if t == TvShow {
-		WaitingSeriesToFinishCopying = true
+	if t == gconst.TvShow {
+		global.WaitingSeriesToFinishCopying = true
 		defer func() {
-			WaitingSeriesToFinishCopying = false
+			global.WaitingSeriesToFinishCopying = false
 		}()
 	}
-	if t == Movie {
-		WaitingMoviesToFinishCopying = true
+	if t == gconst.Movie {
+		global.WaitingMoviesToFinishCopying = true
 		defer func() {
-			WaitingMoviesToFinishCopying = false
+			global.WaitingMoviesToFinishCopying = false
 		}()
 	}
 	response := false
@@ -136,4 +138,43 @@ func IsFileDoneBeingWritten(path string, sleepFor time.Duration, t string) bool 
 	}
 	response = stat1.ModTime() == stat2.ModTime()
 	return response
+}
+
+func GetLastNLinesWithSeek(filepath string, nLines int) string {
+	fileHandle, err := os.Open(filepath)
+
+	if err != nil {
+		//todo: handle this?
+		panic("Cannot open file")
+		os.Exit(1)
+	}
+	defer fileHandle.Close()
+
+	line := ""
+	var cursor int64 = 0
+	stat, _ := fileHandle.Stat()
+	filesize := stat.Size()
+	lineBreaksFound := 0
+	for {
+		cursor -= 1
+		fileHandle.Seek(cursor, io.SeekEnd)
+
+		char := make([]byte, 1)
+		fileHandle.Read(char)
+
+		if cursor != -1 && (char[0] == 10 || char[0] == 13) { // stop if we find a line
+			if lineBreaksFound > nLines {
+				break
+			}
+			lineBreaksFound++
+		}
+
+		line = fmt.Sprintf("%s%s", string(char), line) // there is more efficient way
+
+		if cursor == -filesize { // stop if we are at the begining
+			break
+		}
+	}
+
+	return line
 }

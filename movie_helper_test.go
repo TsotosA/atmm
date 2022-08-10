@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/model"
 	"reflect"
 	"testing"
 )
@@ -98,13 +99,13 @@ func TestParseMovieFilename(t *testing.T) {
 	tests := []struct {
 		name               string
 		args               args
-		wantParsedFilename ParsedFilename
+		wantParsedFilename model.ParsedFilename
 		wantErr            bool
 	}{
 		{
 			name: "year - happy path",
 			args: args{"Escape.from.Pretoria.2020.WEB-DL.DD5.1.H264-FGT"},
-			wantParsedFilename: ParsedFilename{
+			wantParsedFilename: model.ParsedFilename{
 				Name:          "",
 				Title:         "Escape from Pretoria",
 				SeasonNumber:  "",

@@ -1,7 +1,8 @@
-package main
+package helper
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/gconst"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -11,9 +12,9 @@ import (
 )
 
 func TestCopyFileToLocation(t *testing.T) {
-	_ = os.Mkdir(TmpDir, 0777)
-	tmpDir1, _ := ioutil.TempDir(TmpDir, "testDir*")
-	tmpDir2, _ := ioutil.TempDir(TmpDir, "testDir*")
+	_ = os.Mkdir(gconst.TmpDir, 0777)
+	tmpDir1, _ := ioutil.TempDir(gconst.TmpDir, "testDir*")
+	tmpDir2, _ := ioutil.TempDir(gconst.TmpDir, "testDir*")
 	_ = os.WriteFile(tmpDir1+"/"+"testFile", []byte("test input"), 0777)
 	t.Cleanup(func() {
 		zap.S().Infof("cleanup function")
@@ -136,8 +137,8 @@ func TestCurrrentBinaryAbsolutePath(t *testing.T) {
 }
 
 func TestIsFileDoneBeingWritten(t *testing.T) {
-	_ = os.Mkdir(TmpDir, 0777)
-	tmpDir1, _ := ioutil.TempDir(TmpDir, "testDir*")
+	_ = os.Mkdir(gconst.TmpDir, 0777)
+	tmpDir1, _ := ioutil.TempDir(gconst.TmpDir, "testDir*")
 	_ = os.WriteFile(tmpDir1+"/"+"testFile", []byte("test input"), 0777)
 	t.Cleanup(func() {
 		t.Logf("cleanup function")
@@ -158,7 +159,7 @@ func TestIsFileDoneBeingWritten(t *testing.T) {
 			args: args{
 				path:     tmpDir1 + "/" + "testFile",
 				sleepFor: 200 * time.Millisecond,
-				t:        Movie,
+				t:        gconst.Movie,
 			},
 			want: true,
 		},
@@ -167,7 +168,7 @@ func TestIsFileDoneBeingWritten(t *testing.T) {
 			args: args{
 				path:     tmpDir1 + "/" + "testFile",
 				sleepFor: 200 * time.Millisecond,
-				t:        TvShow,
+				t:        gconst.TvShow,
 			},
 			want: true,
 		},

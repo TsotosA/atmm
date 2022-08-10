@@ -1,4 +1,4 @@
-package main
+package model
 
 type GithubRelease struct {
 	Url             string               `json:"url,omitempty"`

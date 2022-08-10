@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/tsotosa/atmm/config"
+	"github.com/tsotosa/atmm/model"
 	"go.uber.org/zap"
 	"path/filepath"
 	"regexp"
 )
 
-func ParseFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
+func ParseFilenameCustomFormat(f string) ([]model.FilenameFormatPair, error) {
 	openingCurly := 0
 	closingCurly := 0
 	currentFind := ""
-	pairs := make([]FilenameFormatPair, 0)
+	pairs := make([]model.FilenameFormatPair, 0)
 
 	for i, v := range f {
 		if string(v) == "{" {
@@ -27,7 +29,7 @@ func ParseFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
 		addPair := closingCurly != 0 && currentFind == "closingCurly"
 
 		if addPair {
-			pairs = append(pairs, FilenameFormatPair{
+			pairs = append(pairs, model.FilenameFormatPair{
 				StartIndex:   openingCurly,
 				EndIndex:     closingCurly,
 				PropertyName: f[openingCurly+1 : closingCurly],
@@ -40,7 +42,7 @@ func ParseFilenameCustomFormat(f string) ([]FilenameFormatPair, error) {
 	return pairs, nil
 }
 
-func MapProperties(o TvShowEpisodeFile, ffp []FilenameFormatPair) error {
+func MapProperties(o model.TvShowEpisodeFile, ffp []model.FilenameFormatPair) error {
 	for i, pair := range ffp {
 		switch pair.PropertyName {
 		case "SeriesTitle":
@@ -69,7 +71,7 @@ func MapProperties(o TvShowEpisodeFile, ffp []FilenameFormatPair) error {
 	return nil
 }
 
-func ReplaceCustomFormatStringToTitle(s string, p []FilenameFormatPair) (string, error) {
+func ReplaceCustomFormatStringToTitle(s string, p []model.FilenameFormatPair) (string, error) {
 	t := s
 	for _, pair := range p {
 		reg, err := regexp.Compile(fmt.Sprintf("{%s}", pair.PropertyName))
@@ -81,8 +83,8 @@ func ReplaceCustomFormatStringToTitle(s string, p []FilenameFormatPair) (string,
 	return t, nil
 }
 
-func MakeFilename(o TvShowEpisodeFile) (string, error) {
-	customFormat := Conf.TvShowEpisodeFormat
+func MakeFilename(o model.TvShowEpisodeFile) (string, error) {
+	customFormat := config.Conf.TvShowEpisodeFormat
 	formatPairs, err := ParseFilenameCustomFormat(customFormat)
 	if err != nil {
 		return "", err

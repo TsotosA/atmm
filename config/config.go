@@ -1,18 +1,24 @@
-package main
+package config
 
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
+	"github.com/tsotosa/atmm/cronjob"
 	"github.com/tsotosa/atmm/debounce"
+	"github.com/tsotosa/atmm/gconst"
+	"github.com/tsotosa/atmm/helper"
+	"github.com/tsotosa/atmm/model"
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
 var (
-	Conf             AppConf
+	Conf             model.AppConf
 	AllConfYamlProps = []string{
 		"rootScanDir",
 		"rootMediaDir",
@@ -39,15 +45,17 @@ var (
 		"logRotateMaxAgeOfBackups",
 		"logRotateMaxLogFileSize",
 		"logRotateCompressBackups",
+		"apiPort",
+		"uiPort",
 	}
 )
 
-func ConfigInit() {
+func ConfigInit(c *cron.Cron, mwg *sync.WaitGroup, jobs []model.CronJob) {
 	//for k, v := range defaults {
 	//	viper.SetDefault(string(k), v)
 	//}
 
-	b := CheckIfDirOrFileExists("./config.yaml")
+	b := helper.CheckIfDirOrFileExists("./config.yaml")
 	if b {
 		missingProps, err := checkIfAllConfigPropsExistInConfFile()
 		if err != nil {
@@ -63,12 +71,12 @@ func ConfigInit() {
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			//err := viper.WriteConfigAs("./example.config.yaml")
-			err := os.WriteFile("./example.config.yaml", []byte(ExampleConfigYaml), 0777)
+			err := os.WriteFile("./example.config.yaml", []byte(gconst.ExampleConfigYaml), 0777)
 			if err != nil {
 				fmt.Printf("failed to write template config: %s", err)
 				panic("config file not found")
 			}
-			panic("README ==> could not locate configuration file. wrote a new one with placeholder values (example.config.yaml), please fill them in appropriately and rename the file to config.yaml <=== README")
+			panic("README ==> could not locate configuration file. wrote a new one with placeholder values (example.config.yaml), please fill them in appropriately and copy the file to config.yaml <=== README")
 			// AppConf file not found; ignore error if desired
 		} else {
 			panic(fmt.Errorf("fatal err config file: %s", err))
@@ -87,7 +95,7 @@ func ConfigInit() {
 		err = viper.Unmarshal(&Conf)
 		log.Printf("updated configuration file")
 		debounced(func() {
-			RestartCronJobs(C)
+			cronjob.RestartCronJobs(c, mwg, jobs)
 		})
 		if err != nil {
 			log.Fatalf("config changed, could not decode to struct: %v", err)
