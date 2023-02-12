@@ -1,3 +1,4 @@
+
 .idea
 .git
 testMediaDir
@@ -11,3 +12,5 @@ bin
 coverage.out
 tmp
 testData
+build
+node_modules
