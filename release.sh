@@ -39,7 +39,8 @@ RELEASES=$(curl --silent \
   https://api.github.com/repos/tsotosa/atmm/releases \
 
   )
-LATEST_TAG_VERSION="$(echo "$RELEASES" | grep -P -o -e '[\d]{0,3}\.[\d]{0,3}\.[\d]{0,3}' | head -1)"
+LATEST_TAG_VERSION="$(echo "$RELEASES" | LC_ALL=en_US.utf8 grep -P -o -e '[\d]{0,3}\.[\d]{0,3}\.[\d]{0,3}' | head -1)"
+
 OVERRIDE_VERSION_BUMP=
 if [[ -z $LATEST_TAG_VERSION ]]; then
     while true; do
@@ -99,11 +100,10 @@ https://api.github.com/repos/tsotosa/atmm/releases \
     }'
   )
 
-ASSETS="$(echo "$R" | grep -P -o -e 'https:\/\/uploads\.github\.com\/.*assets' )"
+ASSETS="$(echo "$R" | LC_ALL=en_US.utf8 grep -P -o -e 'https:\/\/uploads\.github\.com\/.*assets' )"
 #echo $ASSETS
 
 rm ./bin/* 2> /dev/null
-npm --prefix ./web/ui-react run build
 env GOOS=windows go build -ldflags="-s -w -X 'main.Version=${TAG_TITLE}'" -race -o  ./bin/atmm-windows-x64-${TAG_TITLE}.exe
 env GOOS=linux go build -ldflags="-s -w -X 'main.Version=${TAG_TITLE}'" -o  ./bin/atmm-linux-x64-${TAG_TITLE}
 
