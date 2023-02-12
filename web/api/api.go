@@ -25,10 +25,21 @@ func Up() {
 	})
 	api.GET("/log", func(c echo.Context) error {
 		nItems := c.QueryParam("nItems")
+		grepFor := c.QueryParam("grepFor")
 		nLines, err := strconv.Atoi(nItems)
 		if err != nil {
 		}
-		y := helper.GetLastNLinesWithSeek(config.Conf.LogOutputPath, nLines)
+		y := ""
+		if nLines > 0 {
+			y = helper.GetLastNLinesWithSeek(config.Conf.LogOutputPath, nLines)
+		}
+		if nLines <= 0 {
+			y = helper.GetAllFileAsString(config.Conf.LogOutputPath)
+		}
+		if grepFor != "" {
+			grepped := helper.GrepInString(y, grepFor)
+			y = grepped
+		}
 		return c.String(http.StatusOK, y)
 	})
 	api.GET("/config", func(c echo.Context) error {

@@ -7,6 +7,8 @@ import (
 	"github.com/tsotosa/atmm/global"
 	"go.uber.org/zap"
 	"io"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -169,12 +171,34 @@ func GetLastNLinesWithSeek(filepath string, nLines int) string {
 			lineBreaksFound++
 		}
 
-		line = fmt.Sprintf("%s%s", string(char), line) // there is more efficient way
-
+		line = string(char) + line
+		if err != nil {
+			return ""
+		}
 		if cursor == -filesize { // stop if we are at the begining
 			break
 		}
 	}
 
 	return line
+}
+
+func GetAllFileAsString(filepath string) string {
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	text := string(content)
+	return text
+}
+
+func GrepInString(s string, grepValue string) string {
+	lines := strings.Split(s, "\n")
+	r := ""
+	for _, line := range lines {
+		if strings.Contains(line, grepValue) {
+			r = fmt.Sprintf("%s%s\n", r, string(line)) // there is more efficient way
+		}
+	}
+	return r
 }

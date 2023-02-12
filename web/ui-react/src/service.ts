@@ -14,8 +14,7 @@ export const saveConfiguration = async (conf: any) => {
     return res
 }
 
-export const fetchLogs = async (nItems: number) => {
-    const res = await fetch(`http://localhost:1323/api/log?nItems=${nItems}`)
-    let x = await res.text()
-    return x;
+export const fetchLogs = async (nItems: number, grepFor?: string) => {
+    const res = await fetch(`http://localhost:1323/api/log?nItems=${nItems}&grepFor=${grepFor}`)
+    return await res.text();
 }
