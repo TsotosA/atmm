@@ -19,7 +19,6 @@ export function Log() {
     }
 
     let handleGrepInput = (value: any) => {
-        console.log('grep input')
         setGrepFor(value)
     }
 
