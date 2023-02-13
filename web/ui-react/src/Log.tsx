@@ -11,15 +11,16 @@ export function Log() {
         return fetchLogs(nItems, grepFor)
     })
 
-    let handleLinesInput = ($event: any) => {
-        if (+$event.target.value > 10000) {
+    let handleLinesInput = (value: any) => {
+        if (+value > 10000) {
             return
         }
-        setNItems($event.target.value)
+        setNItems(+value)
     }
 
-    let handleGrepInput = ($event: any) => {
-        setGrepFor($event.target.value)
+    let handleGrepInput = (value: any) => {
+        console.log('grep input')
+        setGrepFor(value)
     }
 
     // A debounced input react component
@@ -73,7 +74,7 @@ export function Log() {
                         {/*<input onChange={handleGrepInput} type="text" className="form-control form-control-sm"*/}
                         {/*       id="grepInput"*/}
                         {/*       placeholder="ex. error" value={grepFor} style={{backgroundColor: "dimgrey"}}></input>*/}
-                        <DebouncedInput value={grepFor} onChange={value => handleGrepInput(value as string)}
+                        <DebouncedInput value={grepFor} onChange={value => handleGrepInput(value)}
                                         debounce={1000} id="grepInput" className="form-control form-control-sm"
                                         style={{backgroundColor: "dimgrey"}} placeholder="ex. error"/>
                     </div>
