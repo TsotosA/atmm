@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"github.com/robfig/cron/v3"
 	"github.com/tsotosa/atmm/config"
 	"github.com/tsotosa/atmm/gconst"
@@ -18,9 +17,6 @@ var (
 	Version = "development"
 	C       = cron.New()
 )
-
-//go:embed web/ui-react/build/*
-var static embed.FS
 
 func main() {
 	config.ConfigInit(C, &mwg, GetCronJobs())
