@@ -8,7 +8,7 @@ import (
 	"io/fs"
 )
 
-//go:embed web/ui-react/build/*
+//go:embed ../ui-react/build/*
 var static embed.FS
 
 func Up() {
