@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "set NODE_ENV=production && react-scripts build && mv build '../ui-serve/'",
-    "build:dev": "set NODE_ENV=development && dotenv -e .env.production react-scripts build",
+    "build:dev": "set NODE_ENV=development && dotenv -e .env react-scripts build && mv build '../ui-serve/'",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
